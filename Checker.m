@@ -14,6 +14,11 @@ ylabel('Temperature (°C)');
 title('Temperature Strip Chart');
 grid on;
 
+% Initialize arrays for storing data
+maxPoints = 10; % Maximum number of data points to display
+timeData = zeros(1, maxPoints);
+temperatureData = zeros(1, maxPoints);
+
 % Read and update the strip chart indefinitely
 while ishandle(ax)
     % Read data from the serial port
@@ -25,8 +30,13 @@ while ishandle(ax)
         numericValues = str2double(regexp(data, '[-+]?\d*\.?\d+', 'match'));
         
         if ~isempty(numericValues) && numel(numericValues) == 2
-            % Add data points to the strip chart
-            addpoints(stripChart, numericValues(1), numericValues(2));
+            % Append data points to the arrays
+            timeData = [timeData(2:end), numericValues(1)];
+            temperatureData = [temperatureData(2:end), numericValues(2)];
+            
+            % Update the strip chart with the current window of data
+            clearpoints(stripChart);
+            addpoints(stripChart, timeData, temperatureData);
             
             % Display the received numerical data with labels
             fprintf('Time: %.2f s, Temperature: %.2f °C\n', numericValues(1), numericValues(2));
@@ -41,4 +51,6 @@ while ishandle(ax)
 end
 
 % Close the serial port connection when the figure is closed
+ser=[];
+
 clear ser;
