@@ -17,7 +17,7 @@ grid on;
 % Read and update the strip chart indefinitely
 while ishandle(ax)
     % Read data from the serial port
-    data = fgetl(ser);
+    data = readline(ser);
     
     % Check if data is valid (not empty)
     if ~isempty(data)
@@ -41,6 +41,4 @@ while ishandle(ax)
 end
 
 % Close the serial port connection when the figure is closed
-fclose(ser);
-delete(ser);
 clear ser;
