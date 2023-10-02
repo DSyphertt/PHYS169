@@ -5,6 +5,7 @@ baudRate = 9600;
 % Open the serial port connection
 ser = serialport(comPort, baudRate);
 
+
 % Create a figure for the strip chart
 figure;
 h = plot(nan, nan, '-o');
