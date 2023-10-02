@@ -5,10 +5,10 @@ baudRate = 9600;
 % Open the serial port connection
 ser = serialport(comPort, baudRate);
 
-
 % Create a figure for the strip chart
 figure;
-h = plot(nan, nan, '-o');
+ax = gca;
+stripChart = animatedline('Color', 'b', 'Marker', 'o');
 xlabel('Time (s)');
 ylabel('Temperature (°C)');
 title('Temperature Strip Chart');
@@ -16,19 +16,11 @@ grid on;
 
 % Initialize arrays for storing data
 maxPoints = 100; % Maximum number of data points to display
-timeData = zeros(1, maxPoints);
-temperatureData = zeros(1, maxPoints);
 
-% Initialize index variable
-currentIndex = 1;
-
-% Set axis limits
-axis([0 maxPoints 0 40]); % Adjust the y-axis limit as needed
-
-% Specify the number of iterations to run
+% Specify the number of iterations to run (or run indefinitely)
 numIterations = 100; % Change this to the desired number of iterations
 
-% Read and update the strip chart for a specified number of iterations
+% Read and update the strip chart for a specified number of iterations (or indefinitely)
 for iteration = 1:numIterations
     % Read data from the serial port
     data = fgetl(ser);
@@ -39,17 +31,17 @@ for iteration = 1:numIterations
         numericValues = str2double(regexp(data, '[-+]?\d*\.?\d+', 'match'));
         
         if ~isempty(numericValues) && numel(numericValues) == 2
-            % Store the received numerical data in separate arrays
-            timeData(currentIndex) = numericValues(1);
-            temperatureData(currentIndex) = numericValues(2);
+            % Add data points to the strip chart
+            addpoints(stripChart, numericValues(1), numericValues(2));
             
-            % Update the strip chart with temperature data
-            set(h, 'XData', 1:maxPoints, 'YData', temperatureData);
-            drawnow limitrate;
+            % Update the axes limits
+            axis([ax, currentIndex - maxPoints, currentIndex, 0, 40]);
             
             % Display the received numerical data with labels
             fprintf('Time: %.2f s, Temperature: %.2f °C\n', numericValues(1), numericValues(2));
-            ylim([0 40]);
+            
+            % Update the plot
+            drawnow limitrate;
             
             % Increment the index and wrap around if needed
             currentIndex = currentIndex + 1;
